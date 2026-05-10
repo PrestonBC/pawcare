@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PawCare – Pet Health & Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F7F3ED;
+  --warm-white: #FDFAF6;
+  --sage: #7BA899;
+  --sage-light: #E8F3F0;
+  --sage-dark: #4A7A6D;
+  --amber: #D4824A;
+  --amber-light: #FAF0E6;
+  --amber-dark: #A85E2E;
+  --blush: #E8B4A0;
+  --charcoal: #2C2C2A;
+  --muted: #6B6860;
+  --border: rgba(44,44,42,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--charcoal); min-height:100vh; display:flex; }
+
+/* ── SIDEBAR ── */
+.sidebar { width:256px; min-height:100vh; background:var(--charcoal); display:flex; flex-direction:column; padding:1.75rem 1.25rem; position:fixed; left:0; top:0; bottom:0; z-index:10; overflow-y:auto; }
+.logo { display:flex; align-items:center; gap:10px; margin-bottom:2rem; }
+.logo-icon { width:38px; height:38px; background:var(--sage); border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.logo-text { font-family:'Fraunces',serif; font-size:21px; font-weight:500; color:#fff; letter-spacing:-0.3px; }
+
+.nav-section { font-size:10px; font-weight:500; letter-spacing:1.3px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin:1.25rem 0 0.5rem; padding-left:4px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:9px 12px; border-radius:9px; cursor:pointer; color:rgba(255,255,255,0.55); font-size:13.5px; font-weight:400; transition:all .15s; margin-bottom:2px; border:none; background:transparent; width:100%; text-align:left; font-family:'DM Sans',sans-serif; }
+.nav-item:hover { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.9); }
+.nav-item.active { background:var(--sage); color:#fff; font-weight:500; }
+.nav-icon { font-size:17px; width:20px; text-align:center; flex-shrink:0; }
+
+.pet-switcher { margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding-top:1.25rem; }
+.pet-pill { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.09); border-radius:50px; padding:7px 11px; cursor:pointer; margin-bottom:6px; transition:all .15s; }
+.pet-pill.active-pet { background:rgba(123,168,153,0.18); border-color:var(--sage); }
+.pet-pill:hover { background:rgba(255,255,255,0.11); }
+.pet-avatar-sm { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.pet-pill-name { font-size:13px; font-weight:500; color:#fff; }
+.pet-pill-type { font-size:11px; color:rgba(255,255,255,0.45); }
+
+/* ── MAIN ── */
+.main { margin-left:256px; flex:1; padding:2.25rem 2.5rem; min-height:100vh; }
+.topbar { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:2rem; gap:1rem; flex-wrap:wrap; }
+.page-title { font-family:'Fraunces',serif; font-size:26px; font-weight:500; letter-spacing:-0.4px; }
+.page-sub { color:var(--muted); font-size:13px; margin-top:3px; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500; cursor:pointer; border:none; transition:all .15s; }
+.btn-primary { background:var(--sage-dark); color:#fff; }
+.btn-primary:hover { background:var(--sage); }
+.btn-outline { background:#fff; border:1px solid var(--border); color:var(--charcoal); }
+.btn-outline:hover { background:var(--cream); }
+.btn-amber { background:var(--amber); color:#fff; }
+.btn-amber:hover { background:var(--amber-dark); }
+.btns { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── VIEWS ── */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ── PET HERO ── */
+.pet-hero { background:#fff; border-radius:var(--radius); padding:1.75rem; display:flex; align-items:center; gap:1.75rem; margin-bottom:1.5rem; border:1px solid var(--border); flex-wrap:wrap; }
+.pet-hero-avatar { width:84px; height:84px; background:linear-gradient(135deg,var(--sage-light),#F5DDD4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:42px; flex-shrink:0; }
+.pet-name-big { font-family:'Fraunces',serif; font-size:24px; font-weight:500; }
+.pet-meta { display:flex; gap:1.25rem; margin-top:0.6rem; flex-wrap:wrap; }
+.pet-meta-item { font-size:13px; color:var(--muted); }
+.health-score { margin-left:auto; text-align:center; background:var(--sage-light); border-radius:var(--radius); padding:1.25rem 1.75rem; }
+.score-num { font-family:'Fraunces',serif; font-size:40px; font-weight:500; color:var(--sage-dark); line-height:1; }
+.score-label { font-size:11px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.8px; }
+
+/* ── GRID ── */
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; margin-bottom:1.25rem; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; margin-bottom:1.25rem; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.25rem; }
+
+/* ── CARDS ── */
+.card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:1.4rem; }
+.card-title { font-family:'Fraunces',serif; font-size:15px; font-weight:500; margin-bottom:1.1rem; display:flex; align-items:center; justify-content:space-between; }
+.card-link { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--sage-dark); font-weight:400; cursor:pointer; background:none; border:none; padding:0; }
+
+.stat-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; display:flex; align-items:center; gap:.9rem; }
+.stat-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.stat-icon.sage { background:var(--sage-light); }
+.stat-icon.amber { background:var(--amber-light); }
+.stat-icon.blush { background:#FAECEC; }
+.stat-val { font-family:'Fraunces',serif; font-size:20px; font-weight:500; line-height:1; }
+.stat-lbl { font-size:12px; color:var(--muted); margin-top:3px; }
+
+/* ── BADGES ── */
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:50px; font-size:12px; font-weight:500; }
+.badge-sage { background:var(--sage-light); color:var(--sage-dark); }
+.badge-amber { background:var(--amber-light); color:var(--amber-dark); }
+.badge-red { background:#FDEAEA; color:#B83A3A; }
+.badge-blue { background:#EAF0FA; color:#2A5F9E; }
+.badge-green { background:#EBF5E8; color:#2E6E24; }
+
+/* ── ALERT ── */
+.alert-bar { background:var(--amber-light); border:1px solid #E5C9A8; border-radius:var(--radius-sm); padding:.8rem 1.1rem; display:flex; align-items:center; gap:9px; font-size:13px; margin-bottom:1.25rem; }
+
+/* ── TIMELINE ── */
+.tl-item { display:flex; gap:.9rem; align-items:flex-start; padding:.75rem 0; border-bottom:1px solid var(--border); }
+.tl-item:last-child { border-bottom:none; }
+.tl-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.tl-dot.vet { background:var(--sage-light); }
+.tl-dot.med { background:var(--amber-light); }
+.tl-dot.food { background:#EAF0FA; }
+.tl-title { font-size:13.5px; font-weight:500; }
+.tl-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.tl-date { margin-left:auto; font-size:11px; color:var(--muted); white-space:nowrap; }
+
+/* ── MEDS ── */
+.med-row { display:flex; align-items:center; gap:.9rem; padding:.7rem 0; border-bottom:1px solid var(--border); }
+.med-row:last-child { border-bottom:none; }
+.med-check { width:26px; height:26px; border-radius:7px; border:1.5px solid var(--border); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:all .15s; flex-shrink:0; }
+.med-check.done { background:var(--sage); border-color:var(--sage); }
+
+/* ── FEEDING ── */
+.feed-row { display:flex; align-items:center; gap:1rem; padding:.65rem 0; border-bottom:1px solid var(--border); }
+.feed-row:last-child { border-bottom:none; }
+.feed-time { font-family:'Fraunces',serif; font-size:15px; min-width:65px; }
+
+/* ── WEIGHT CHART ── */
+.w-bars { display:flex; align-items:flex-end; gap:7px; height:75px; }
+.w-bar { flex:1; border-radius:5px 5px 0 0; background:var(--sage-light); cursor:pointer; transition:.3s; }
+.w-bar:hover,.w-bar.cur { background:var(--sage-dark); }
+.w-months { display:flex; gap:7px; margin-top:5px; }
+.w-month { flex:1; text-align:center; font-size:10px; color:var(--muted); }
+
+/* ── PHOTO GRID ── */
+.photo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.photo-cell { aspect-ratio:1; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:30px; cursor:pointer; transition:transform .15s; }
+.photo-cell:hover { transform:scale(1.04); }
+
+/* ── MODAL ── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(44,44,42,0.5); z-index:200; align-items:center; justify-content:center; }
+.overlay.open { display:flex; }
+.modal { background:#fff; border-radius:var(--radius); padding:2rem; width:460px; max-width:95vw; max-height:90vh; overflow-y:auto; }
+.modal-title { font-family:'Fraunces',serif; font-size:20px; margin-bottom:1.4rem; }
+.form-group { margin-bottom:1.1rem; }
+.form-label { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; display:block; margin-bottom:5px; }
+.form-input,.form-select,.form-textarea { width:100%; padding:9px 13px; border:1px solid var(--border); border-radius:var(--radius-sm); font-family:'DM Sans',sans-serif; font-size:13.5px; background:var(--warm-white); outline:none; transition:border .15s; }
+.form-textarea { resize:vertical; min-height:80px; }
+.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:var(--sage); }
+.modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:1.4rem; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+/* ══════════════════════════════════
+   MARKETPLACE
+══════════════════════════════════ */
+.market-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+.market-filters { display:flex; gap:8px; flex-wrap:wrap; }
+.filter-pill { padding:6px 16px; border-radius:50px; font-size:13px; cursor:pointer; border:1px solid var(--border); background:#fff; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.filter-pill.active,.filter-pill:hover { background:var(--sage-dark); color:#fff; border-color:var(--sage-dark); }
+.search-bar { display:flex; gap:8px; align-items:center; margin-bottom:1.5rem; }
+.search-input { flex:1; padding:10px 16px; border:1px solid var(--border); border-radius:50px; font-family:'DM Sans',sans-serif; font-size:13.5px; background:#fff; outline:none; }
+.search-input:focus { border-color:var(--sage); }
+
+.listing-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1.25rem; }
+.listing-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:pointer; transition:transform .15s, box-shadow .15s; }
+.listing-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(44,44,42,0.1); }
+.listing-img { height:180px; display:flex; align-items:center; justify-content:center; font-size:72px; position:relative; }
+.listing-body { padding:1rem; }
+.listing-name { font-family:'Fraunces',serif; font-size:16px; font-weight:500; }
+.listing-breed { font-size:12px; color:var(--muted); margin-top:2px; }
+.listing-price { font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--sage-dark); margin-top:.5rem; }
+.listing-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:.5rem; }
+.listing-footer { padding:.75rem 1rem; border-top:1px solid var(--border); display:flex; gap:6px; }
+.listing-badge-sold { position:absolute; top:10px; right:10px; background:#B83A3A; color:#fff; font-size:11px; font-weight:500; padding:3px 9px; border-radius:50px; }
+.listing-badge-new { position:absolute; top:10px; right:10px; background:var(--sage-dark); color:#fff; font-size:11px; font-weight:500; padding:3px 9px; border-radius:50px; }
+
+.seller-profile { display:flex; align-items:center; gap:9px; margin-top:.75rem; padding-top:.75rem; border-top:1px solid var(--border); }
+.seller-avatar { width:32px; height:32px; border-radius:50%; background:var(--sage-light); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.seller-name { font-size:13px; font-weight:500; }
+.seller-loc { font-size:11px; color:var(--muted); }
+.seller-rating { margin-left:auto; font-size:12px; color:var(--amber-dark); }
+
+/* listing detail modal */
+.listing-detail-img { height:220px; background:var(--cream); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:90px; margin-bottom:1.25rem; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:1rem 0; }
+.info-cell { background:var(--cream); border-radius:var(--radius-sm); padding:.7rem 1rem; }
+.info-cell-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; }
+.info-cell-val { font-size:14px; font-weight:500; margin-top:3px; }
+
+/* sell form steps */
+.step-indicator { display:flex; gap:6px; margin-bottom:1.5rem; }
+.step-dot { flex:1; height:3px; border-radius:3px; background:var(--border); transition:background .3s; }
+.step-dot.done { background:var(--sage-dark); }
+
+/* my listings */
+.my-listing-row { display:flex; align-items:center; gap:1rem; padding:.85rem 0; border-bottom:1px solid var(--border); }
+.my-listing-row:last-child { border-bottom:none; }
+.my-listing-img { width:48px; height:48px; border-radius:10px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.my-listing-name { font-size:14px; font-weight:500; }
+.my-listing-price { font-size:13px; color:var(--sage-dark); font-weight:500; }
+.my-listing-actions { margin-left:auto; display:flex; gap:6px; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.card,.stat-card,.pet-hero,.listing-card { animation:fadeUp .25s ease; }
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:1.25rem}
+  .grid-3,.grid-4{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .listing-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:540px){ .listing-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🐾</div>
+    <div class="logo-text">PawCare</div>
+  </div>
+
+  <span class="nav-section">Care</span>
+  <button class="nav-item active" onclick="gotoView('dashboard',this)"><span class="nav-icon">🏠</span>Dashboard</button>
+  <button class="nav-item" onclick="gotoView('health',this)"><span class="nav-icon">❤️</span>Health Records</button>
+  <button class="nav-item" onclick="gotoView('medications',this)"><span class="nav-icon">💊</span>Medications</button>
+  <button class="nav-item" onclick="gotoView('nutrition',this)"><span class="nav-icon">🥣</span>Nutrition</button>
+  <button class="nav-item" onclick="gotoView('journal',this)"><span class="nav-icon">📸</span>Photo Journal</button>
+
+  <span class="nav-section">Marketplace</span>
+  <button class="nav-item" onclick="gotoView('marketplace',this)"><span class="nav-icon">🏪</span>Browse Pets</button>
+  <button class="nav-item" onclick="gotoView('sell',this)"><span class="nav-icon">💰</span>Sell a Pet</button>
+  <button class="nav-item" onclick="gotoView('mylistings',this)"><span class="nav-icon">📋</span>My Listings</button>
+
+  <div class="pet-switcher">
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;">Your Pets</div>
+    <div class="pet-pill active-pet" id="pill-mochi" onclick="switchPet('Mochi','🐱','Persian Cat','3y',4.2)">
+      <div class="pet-avatar-sm">🐱</div>
+      <div><div class="pet-pill-name">Mochi</div><div class="pet-pill-type">Persian Cat · 3y</div></div>
+      <span style="margin-left:auto;color:var(--sage);font-size:12px;">✓</span>
+    </div>
+    <div class="pet-pill" id="pill-rex" onclick="switchPet('Rex','🐶','Golden Retriever','5y',28.5)">
+      <div class="pet-avatar-sm">🐶</div>
+      <div><div class="pet-pill-name">Rex</div><div class="pet-pill-type">Golden Retriever · 5y</div></div>
+    </div>
+    <button class="btn btn-outline" style="width:100%;margin-top:9px;border-radius:9px;font-size:13px;" onclick="openModal('modal-addpet')">+ Add pet</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ══ DASHBOARD ══ -->
+<div class="view active" id="view-dashboard">
+  <div class="topbar">
+    <div><div class="page-title" id="greet">Good morning! 🌿</div><div class="page-sub" id="today-date"></div></div>
+    <div class="btns">
+      <button class="btn btn-outline" onclick="openModal('modal-event')">📝 Log event</button>
+      <button class="btn btn-primary" onclick="openModal('modal-vet')">🏥 Book vet</button>
+    </div>
+  </div>
+
+  <div class="alert-bar">⚠️ <strong>Mochi's flea treatment</strong> is due in 3 days. <a href="#" style="color:var(--amber-dark);margin-left:4px;" onclick="return false">Mark done</a></div>
+
+  <div class="pet-hero">
+    <div class="pet-hero-avatar" id="dash-avatar">🐱</div>
+    <div>
+      <div class="pet-name-big" id="dash-petname">Mochi</div>
+      <div class="pet-meta">
+        <span class="pet-meta-item">🎂 Born Jan 15, 2022</span>
+        <span class="pet-meta-item">⚖️ <span id="dash-weight">4.2</span> kg</span>
+        <span class="pet-meta-item">🩺 Last visit: Mar 10</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:.6rem;">
+        <span class="badge badge-sage">Up to date on vaccines</span>
+        <span class="badge badge-amber">Spayed</span>
+      </div>
+    </div>
+    <div class="health-score"><div class="score-num">92</div><div class="score-label">Health Score</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="stat-card"><div class="stat-icon sage">💊</div><div><div class="stat-val">2/3</div><div class="stat-lbl">Meds today</div></div></div>
+    <div class="stat-card"><div class="stat-icon amber">📅</div><div><div class="stat-val">Apr 28</div><div class="stat-lbl">Next vet visit</div></div></div>
+    <div class="stat-card"><div class="stat-icon blush">🥣</div><div><div class="stat-val">2/3</div><div class="stat-lbl">Meals today</div></div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Recent Events <button class="card-link" onclick="gotoView('health',null)">View all →</button></div>
+      <div class="tl-item"><div class="tl-dot vet">🩺</div><div><div class="tl-title">Annual checkup</div><div class="tl-sub">Dr. Amara · All clear</div></div><div class="tl-date">Mar 10</div></div>
+      <div class="tl-item"><div class="tl-dot med">💊</div><div><div class="tl-title">Flea treatment applied</div><div class="tl-sub">Frontline Plus</div></div><div class="tl-date">Feb 28</div></div>
+      <div class="tl-item"><div class="tl-dot food">🥣</div><div><div class="tl-title">Diet changed</div><div class="tl-sub">Switched to grain-free</div></div><div class="tl-date">Feb 12</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Weight (kg) — Last 6 months</div>
+      <div class="w-bars" id="dash-wbars"></div>
+      <div class="w-months" id="dash-wmonths"></div>
+    </div>
+  </div>
+
+  <!-- marketplace teaser -->
+  <div class="card" style="background:linear-gradient(135deg,var(--sage-light) 0%,var(--amber-light) 100%);border:none;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+    <div style="font-size:48px;">🐶🐱🐰</div>
+    <div style="flex:1;">
+      <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:500;">PawCare Marketplace</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Browse pets for adoption & purchase, or list your own. Trusted sellers, health-verified listings.</div>
+    </div>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="gotoView('marketplace',null)">Browse pets</button>
+      <button class="btn btn-amber" onclick="gotoView('sell',null)">Sell a pet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HEALTH RECORDS ══ -->
+<div class="view" id="view-health">
+  <div class="topbar">
+    <div><div class="page-title">Health Records</div><div class="page-sub" id="health-petname">Mochi · Persian Cat</div></div>
+    <button class="btn btn-primary" onclick="openModal('modal-event')">+ Add record</button>
+  </div>
+  <div class="grid-3">
+    <div class="stat-card"><div class="stat-icon sage">🩺</div><div><div class="stat-val">8</div><div class="stat-lbl">Vet visits</div></div></div>
+    <div class="stat-card"><div class="stat-icon amber">💉</div><div><div class="stat-val">5/5</div><div class="stat-lbl">Vaccines done</div></div></div>
+    <div class="stat-card"><div class="stat-icon blush">📋</div><div><div class="stat-val">3</div><div class="stat-lbl">Active conditions</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Full history</div>
+    <div class="tl-item"><div class="tl-dot vet">🩺</div><div><div class="tl-title">Annual checkup</div><div class="tl-sub">Dr. Amara Nkosi · All clear, weight 4.2 kg</div></div><div class="tl-date">Mar 10, 2025</div></div>
+    <div class="tl-item"><div class="tl-dot med">💉</div><div><div class="tl-title">Rabies booster</div><div class="tl-sub">Dr. Amara Nkosi · Next due Mar 2026</div></div><div class="tl-date">Mar 10, 2025</div></div>
+    <div class="tl-item"><div class="tl-dot med">💊</div><div><div class="tl-title">Flea & tick treatment</div><div class="tl-sub">Frontline Plus applied</div></div><div class="tl-date">Feb 28, 2025</div></div>
+    <div class="tl-item"><div class="tl-dot food">🦷</div><div><div class="tl-title">Dental cleaning</div><div class="tl-sub">Dr. Chidi · No cavities</div></div><div class="tl-date">Jan 5, 2025</div></div>
+    <div class="tl-item"><div class="tl-dot vet">🩺</div><div><div class="tl-title">Checkup</div><div class="tl-sub">Dr. Amara Nkosi · Minor ear infection treated</div></div><div class="tl-date">Sep 14, 2024</div></div>
+    <div class="tl-item"><div class="tl-dot med">💉</div><div><div class="tl-title">FVRCP vaccine</div><div class="tl-sub">3-year booster</div></div><div class="tl-date">Jan 15, 2024</div></div>
+  </div>
+</div>
+
+<!-- ══ MEDICATIONS ══ -->
+<div class="view" id="view-medications">
+  <div class="topbar">
+    <div><div class="page-title">Medications</div><div class="page-sub">Today's schedule & active prescriptions</div></div>
+    <button class="btn btn-primary" onclick="openModal('modal-med')">+ Add medication</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Today's doses</div>
+      <div id="med-list">
+        <div class="med-row"><div class="med-check done" onclick="toggleMed(this)">✓</div><div><div style="font-size:13.5px;font-weight:500;">Prednisolone 5mg</div><div style="font-size:12px;color:var(--muted);">Morning · With food</div></div><span class="badge badge-sage" style="margin-left:auto;">Done</span></div>
+        <div class="med-row"><div class="med-check done" onclick="toggleMed(this)">✓</div><div><div style="font-size:13.5px;font-weight:500;">Omega-3 supplement</div><div style="font-size:12px;color:var(--muted);">Morning</div></div><span class="badge badge-sage" style="margin-left:auto;">Done</span></div>
+        <div class="med-row"><div class="med-check" onclick="toggleMed(this)"></div><div><div style="font-size:13.5px;font-weight:500;">Prednisolone 5mg</div><div style="font-size:12px;color:var(--muted);">Evening · With food</div></div><span class="badge badge-red" style="margin-left:auto;">Pending</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active prescriptions</div>
+      <div class="tl-item"><div class="tl-dot med">💊</div><div><div class="tl-title">Prednisolone 5mg</div><div class="tl-sub">2× daily · 30 days remaining</div></div></div>
+      <div class="tl-item"><div class="tl-dot med">🐟</div><div><div class="tl-title">Omega-3 supplement</div><div class="tl-sub">1× morning · Ongoing</div></div></div>
+      <div class="tl-item"><div class="tl-dot med">🐞</div><div><div class="tl-title">Frontline Plus</div><div class="tl-sub">Monthly · Next due Apr 28</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NUTRITION ══ -->
+<div class="view" id="view-nutrition">
+  <div class="topbar">
+    <div><div class="page-title">Nutrition</div><div class="page-sub">Feeding schedule & dietary notes</div></div>
+    <button class="btn btn-primary" onclick="openModal('modal-feed')">+ Edit schedule</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Today's feeding</div>
+      <div class="feed-row"><div class="feed-time">7:00 AM</div><div><div style="font-size:13.5px;font-weight:500;">Royal Canin Persian dry</div><div style="font-size:12px;color:var(--muted);">60g · Morning meal</div></div><span style="font-size:20px;margin-left:auto;">✅</span></div>
+      <div class="feed-row"><div class="feed-time">12:00 PM</div><div><div style="font-size:13.5px;font-weight:500;">Wet food + water</div><div style="font-size:12px;color:var(--muted);">80g pouch · Midday</div></div><span style="font-size:20px;margin-left:auto;">✅</span></div>
+      <div class="feed-row"><div class="feed-time">6:00 PM</div><div><div style="font-size:13.5px;font-weight:500;">Royal Canin Persian dry</div><div style="font-size:12px;color:var(--muted);">60g · Evening meal</div></div><span style="font-size:20px;margin-left:auto;">⏳</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dietary notes</div>
+      <div style="font-size:13.5px;line-height:1.7;color:var(--muted);">
+        <p>🚫 <strong style="color:var(--charcoal);">Avoid:</strong> Dairy, onions, grapes, raw fish</p>
+        <p style="margin-top:.75rem;">✅ <strong style="color:var(--charcoal);">Good for:</strong> Cooked chicken, wet food, omega-3 rich diet</p>
+        <p style="margin-top:.75rem;">💧 <strong style="color:var(--charcoal);">Water:</strong> Encourage 200ml+ daily — prone to UTIs</p>
+        <p style="margin-top:.75rem;">⚖️ <strong style="color:var(--charcoal);">Target weight:</strong> 4.0–4.5 kg</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JOURNAL ══ -->
+<div class="view" id="view-journal">
+  <div class="topbar">
+    <div><div class="page-title">Photo Journal</div><div class="page-sub">Memories & milestones</div></div>
+    <button class="btn btn-primary" onclick="openModal('modal-photo')">📸 Add photo</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Gallery</div>
+    <div class="photo-grid">
+      <div class="photo-cell" style="background:#E8F3F0;">😺</div>
+      <div class="photo-cell" style="background:#FAF0E6;">🐈</div>
+      <div class="photo-cell" style="background:#FDEAEA;">😻</div>
+      <div class="photo-cell" style="background:#EAF0FA;">🐾</div>
+      <div class="photo-cell" style="background:#F5DDD4;">🌿</div>
+      <div class="photo-cell" style="background:#EBF5E8;">🐱</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.25rem;">
+    <div class="card-title">Milestones</div>
+    <div class="tl-item"><div class="tl-dot vet">🎂</div><div><div class="tl-title">3rd Birthday!</div><div class="tl-sub">Celebrated with a tuna treat</div></div><div class="tl-date">Jan 15, 2025</div></div>
+    <div class="tl-item"><div class="tl-dot food">🏠</div><div><div class="tl-title">Moved to new home</div><div class="tl-sub">Settled in beautifully</div></div><div class="tl-date">Jun 3, 2024</div></div>
+    <div class="tl-item"><div class="tl-dot med">🏆</div><div><div class="tl-title">First grooming session</div><div class="tl-sub">Was very well-behaved!</div></div><div class="tl-date">Mar 20, 2023</div></div>
+  </div>
+</div>
+
+<!-- ══ MARKETPLACE ══ -->
+<div class="view" id="view-marketplace">
+  <div class="topbar">
+    <div><div class="page-title">Pet Marketplace</div><div class="page-sub">Find your next companion — health-verified listings</div></div>
+    <button class="btn btn-amber" onclick="gotoView('sell',null)">💰 Sell a pet</button>
+  </div>
+
+  <div class="search-bar">
+    <input class="search-input" placeholder="🔍  Search by breed, name, location…" id="market-search" oninput="filterListings()">
+    <button class="btn btn-outline" onclick="openModal('modal-filter')">⚙️ Filters</button>
+  </div>
+
+  <div class="market-filters" id="market-filters" style="margin-bottom:1.25rem;">
+    <button class="filter-pill active" onclick="setFilter(this,'All')">All</button>
+    <button class="filter-pill" onclick="setFilter(this,'Dog')">🐶 Dogs</button>
+    <button class="filter-pill" onclick="setFilter(this,'Cat')">🐱 Cats</button>
+    <button class="filter-pill" onclick="setFilter(this,'Rabbit')">🐰 Rabbits</button>
+    <button class="filter-pill" onclick="setFilter(this,'Bird')">🦜 Birds</button>
+    <button class="filter-pill" onclick="setFilter(this,'Other')">🐾 Other</button>
+  </div>
+
+  <div class="listing-grid" id="listing-grid"></div>
+</div>
+
+<!-- ══ SELL A PET ══ -->
+<div class="view" id="view-sell">
+  <div class="topbar">
+    <div><div class="page-title">Create a Listing</div><div class="page-sub">List your pet for sale or adoption</div></div>
+  </div>
+  <div style="max-width:600px;">
+    <div class="card">
+      <div class="step-indicator">
+        <div class="step-dot done" id="step1"></div>
+        <div class="step-dot" id="step2"></div>
+        <div class="step-dot" id="step3"></div>
+      </div>
+      <div id="sell-step-1">
+        <div style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:1.25rem;">1 · Pet details</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Pet name</label><input class="form-input" placeholder="e.g. Bella"></div>
+          <div class="form-group"><label class="form-label">Species</label><select class="form-select"><option>Dog</option><option>Cat</option><option>Rabbit</option><option>Bird</option><option>Other</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Breed</label><input class="form-input" placeholder="e.g. Labrador"></div>
+          <div class="form-group"><label class="form-label">Age</label><input class="form-input" placeholder="e.g. 8 months"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Sex</label><select class="form-select"><option>Male</option><option>Female</option></select></div>
+          <div class="form-group"><label class="form-label">Color / markings</label><input class="form-input" placeholder="e.g. Golden brown"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" placeholder="Tell buyers about the pet's personality, habits, and why you're rehoming…"></textarea></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="sellStep(2)">Next →</button>
+      </div>
+
+      <div id="sell-step-2" style="display:none;">
+        <div style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:1.25rem;">2 · Health & docs</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Vaccinated?</label><select class="form-select"><option>Yes — fully</option><option>Partially</option><option>No</option></select></div>
+          <div class="form-group"><label class="form-label">Microchipped?</label><select class="form-select"><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Neutered/Spayed?</label><select class="form-select"><option>Yes</option><option>No</option></select></div>
+          <div class="form-group"><label class="form-label">Vet records available?</label><select class="form-select"><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Known health conditions</label><input class="form-input" placeholder="None, or describe…"></div>
+        <div class="form-group"><label class="form-label">Upload photos (emoji for demo)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px;border:1px dashed var(--border);border-radius:var(--radius-sm);">
+            <div style="width:70px;height:70px;background:var(--cream);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:28px;">📷</div>
+            <div style="width:70px;height:70px;background:var(--cream);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted);cursor:pointer;">+</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="sellStep(1)">← Back</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="sellStep(3)">Next →</button>
+        </div>
+      </div>
+
+      <div id="sell-step-3" style="display:none;">
+        <div style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:1.25rem;">3 · Pricing & contact</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Listing type</label><select class="form-select" id="listing-type" onchange="togglePrice()"><option>For sale</option><option>Adoption (free)</option></select></div>
+          <div class="form-group" id="price-field"><label class="form-label">Price (ZMW)</label><input class="form-input" placeholder="e.g. 2500"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Your name</label><input class="form-input" placeholder="Full name"></div>
+          <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input class="form-input" placeholder="+260…"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">City / Town</label><input class="form-input" placeholder="e.g. Lusaka"></div>
+          <div class="form-group"><label class="form-label">Preferred contact</label><select class="form-select"><option>WhatsApp</option><option>Phone call</option><option>In-app message</option></select></div>
+        </div>
+        <div style="background:var(--sage-light);border-radius:var(--radius-sm);padding:.9rem 1rem;font-size:13px;margin-bottom:1.25rem;">
+          ✅ Your listing will be reviewed within 24 hrs. Health-verified badge awarded when vet records are uploaded.
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="sellStep(2)">← Back</button>
+          <button class="btn btn-amber" style="flex:1;justify-content:center;" onclick="submitListing()">🐾 Publish listing</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MY LISTINGS ══ -->
+<div class="view" id="view-mylistings">
+  <div class="topbar">
+    <div><div class="page-title">My Listings</div><div class="page-sub">Manage your active & past listings</div></div>
+    <button class="btn btn-amber" onclick="gotoView('sell',null)">+ New listing</button>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Active listings</div>
+      <div class="my-listing-row">
+        <div class="my-listing-img">🐶</div>
+        <div><div class="my-listing-name">Bruno — German Shepherd pup</div><div class="my-listing-price">ZMW 3,500</div><div><span class="badge badge-green" style="margin-top:4px;">Active · 12 views</span></div></div>
+        <div class="my-listing-actions">
+          <button class="btn btn-outline" style="padding:6px 12px;font-size:12px;">Edit</button>
+          <button class="btn btn-outline" style="padding:6px 12px;font-size:12px;color:#B83A3A;">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sold / closed</div>
+      <div class="my-listing-row">
+        <div class="my-listing-img">🐱</div>
+        <div><div class="my-listing-name">Nala — Siamese kitten</div><div class="my-listing-price">ZMW 1,200</div><div><span class="badge badge-amber" style="margin-top:4px;">Sold · Mar 2025</span></div></div>
+      </div>
+      <div style="text-align:center;padding:1rem 0;color:var(--muted);font-size:13px;">No other closed listings.</div>
+    </div>
+  </div>
+  <div class="card" style="max-width:500px;margin-top:0;">
+    <div class="card-title">Seller stats</div>
+    <div class="grid-3" style="gap:.75rem;margin-bottom:0;">
+      <div style="text-align:center;"><div style="font-family:'Fraunces',serif;font-size:24px;color:var(--sage-dark);">4.9</div><div style="font-size:11px;color:var(--muted);">Avg rating ⭐</div></div>
+      <div style="text-align:center;"><div style="font-family:'Fraunces',serif;font-size:24px;color:var(--sage-dark);">3</div><div style="font-size:11px;color:var(--muted);">Total sales</div></div>
+      <div style="text-align:center;"><div style="font-family:'Fraunces',serif;font-size:24px;color:var(--sage-dark);">100%</div><div style="font-size:11px;color:var(--muted);">Response rate</div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══ MODALS ══ -->
+<div class="overlay" id="modal-event"><div class="modal"><div class="modal-title">📝 Log health event</div><div class="form-group"><label class="form-label">Event type</label><select class="form-select"><option>Vet visit</option><option>Vaccine</option><option>Medication</option><option>Surgery</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date"></div><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" placeholder="Details…"></textarea></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-event')">Cancel</button><button class="btn btn-primary">Save</button></div></div></div>
+
+<div class="overlay" id="modal-vet"><div class="modal"><div class="modal-title">🏥 Book vet appointment</div><div class="form-group"><label class="form-label">Vet clinic</label><input class="form-input" placeholder="Clinic name"></div><div class="form-row"><div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date"></div><div class="form-group"><label class="form-label">Time</label><input class="form-input" type="time"></div></div><div class="form-group"><label class="form-label">Reason</label><textarea class="form-textarea" placeholder="e.g. Annual checkup"></textarea></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-vet')">Cancel</button><button class="btn btn-primary">Book</button></div></div></div>
+
+<div class="overlay" id="modal-med"><div class="modal"><div class="modal-title">💊 Add medication</div><div class="form-row"><div class="form-group"><label class="form-label">Medication name</label><input class="form-input" placeholder="e.g. Amoxicillin"></div><div class="form-group"><label class="form-label">Dosage</label><input class="form-input" placeholder="e.g. 5mg"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Frequency</label><select class="form-select"><option>Once daily</option><option>Twice daily</option><option>Weekly</option><option>Monthly</option></select></div><div class="form-group"><label class="form-label">Duration (days)</label><input class="form-input" type="number" placeholder="30"></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-med')">Cancel</button><button class="btn btn-primary">Add</button></div></div></div>
+
+<div class="overlay" id="modal-addpet"><div class="modal"><div class="modal-title">🐾 Add a new pet</div><div class="form-row"><div class="form-group"><label class="form-label">Name</label><input class="form-input" placeholder="Pet name"></div><div class="form-group"><label class="form-label">Species</label><select class="form-select"><option>Cat</option><option>Dog</option><option>Rabbit</option><option>Bird</option><option>Other</option></select></div></div><div class="form-row"><div class="form-group"><label class="form-label">Breed</label><input class="form-input" placeholder="Breed"></div><div class="form-group"><label class="form-label">Birthday</label><input class="form-input" type="date"></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-addpet')">Cancel</button><button class="btn btn-primary">Add pet</button></div></div></div>
+
+<div class="overlay" id="modal-photo"><div class="modal"><div class="modal-title">📸 Add photo</div><div class="form-group"><label class="form-label">Caption</label><input class="form-input" placeholder="e.g. Mochi's first birthday!"></div><div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date"></div><div style="height:120px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;cursor:pointer;">📷 Tap to upload photo</div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-photo')">Cancel</button><button class="btn btn-primary">Save</button></div></div></div>
+
+<div class="overlay" id="modal-feed"><div class="modal"><div class="modal-title">🥣 Edit feeding schedule</div><div class="form-group"><label class="form-label">Food type</label><input class="form-input" placeholder="e.g. Royal Canin Persian"></div><div class="form-group"><label class="form-label">Daily amount (grams)</label><input class="form-input" type="number" placeholder="200"></div><div class="form-group"><label class="form-label">Meals per day</label><select class="form-select"><option>2</option><option>3</option><option>4</option></select></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-feed')">Cancel</button><button class="btn btn-primary">Save</button></div></div></div>
+
+<div class="overlay" id="modal-filter"><div class="modal"><div class="modal-title">⚙️ Filter listings</div><div class="form-row"><div class="form-group"><label class="form-label">Min price (ZMW)</label><input class="form-input" type="number" placeholder="0"></div><div class="form-group"><label class="form-label">Max price (ZMW)</label><input class="form-input" type="number" placeholder="10000"></div></div><div class="form-group"><label class="form-label">Location</label><input class="form-input" placeholder="e.g. Lusaka"></div><div class="form-row"><div class="form-group"><label class="form-label">Age range</label><select class="form-select"><option>Any</option><option>Puppy / Kitten</option><option>Young (1-3y)</option><option>Adult (3-7y)</option><option>Senior (7y+)</option></select></div><div class="form-group"><label class="form-label">Sex</label><select class="form-select"><option>Any</option><option>Male</option><option>Female</option></select></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-filter')">Reset</button><button class="btn btn-primary" onclick="closeModal('modal-filter')">Apply</button></div></div></div>
+
+<!-- listing detail modal -->
+<div class="overlay" id="modal-listing"><div class="modal" style="width:520px;"><div id="listing-detail-content"></div></div></div>
+
+<!-- success toast -->
+<div id="toast" style="display:none;position:fixed;bottom:2rem;right:2rem;background:var(--sage-dark);color:#fff;padding:12px 22px;border-radius:50px;font-size:14px;font-weight:500;z-index:999;animation:fadeUp .3s ease;">✅ Listing published!</div>
+
+<script>
+// ── DATA ──
+const listings = [
+  { id:1, name:'Bruno', species:'Dog', breed:'German Shepherd', age:'3 months', sex:'Male', price:3500, location:'Lusaka', vaccinated:true, emoji:'🐶', color:'#E8F3F0', desc:'Playful, energetic pup. Great with kids. Fully vaccinated, microchipped.', seller:'Tendai M.', rating:4.9, new:true, sold:false },
+  { id:2, name:'Luna', species:'Cat', breed:'Siamese', age:'8 weeks', sex:'Female', price:1200, location:'Kitwe', vaccinated:true, emoji:'🐱', color:'#FAF0E6', desc:'Gentle, affectionate kitten. Litter trained. Vet records available.', seller:'Grace K.', rating:5.0, new:true, sold:false },
+  { id:3, name:'Daisy', species:'Rabbit', breed:'Holland Lop', age:'6 months', sex:'Female', price:800, location:'Ndola', vaccinated:false, emoji:'🐰', color:'#F5DDD4', desc:'Sweet and curious rabbit. Perfect apartment pet. Comes with hutch.', seller:'Mwila B.', rating:4.7, new:false, sold:false },
+  { id:4, name:'Max', species:'Dog', breed:'Labrador Retriever', age:'1 year', sex:'Male', price:4500, location:'Lusaka', vaccinated:true, emoji:'🐶', color:'#EAF0FA', desc:'Loyal, trained Lab. Knows basic commands. Great family dog.', seller:'Chanda P.', rating:4.8, new:false, sold:false },
+  { id:5, name:'Kiwi', species:'Bird', breed:'Budgerigar', age:'4 months', sex:'Male', price:350, location:'Livingstone', vaccinated:false, emoji:'🦜', color:'#EBF5E8', desc:'Talkative little budgie. Loves music and mirrors.', seller:'Sophie N.', rating:4.6, new:false, sold:false },
+  { id:6, name:'Bella', species:'Cat', breed:'Persian', age:'2 years', sex:'Female', price:0, location:'Lusaka', vaccinated:true, emoji:'😺', color:'#FDEAEA', desc:'Rehoming due to relocation. Very gentle and low-maintenance.', seller:'James L.', rating:5.0, new:false, sold:false },
+  { id:7, name:'Rocky', species:'Dog', breed:'Rottweiler', age:'5 months', sex:'Male', price:5000, location:'Kabwe', vaccinated:true, emoji:'🐕', color:'#F7F3ED', desc:'Strong, protective breed. Great guard dog potential.', seller:'Bupe C.', rating:4.5, new:false, sold:true },
+  { id:8, name:'Thumper', species:'Rabbit', breed:'Flemish Giant', age:'3 months', sex:'Male', price:600, location:'Ndola', vaccinated:false, emoji:'🐇', color:'#E8F3F0', desc:'Enormous friendly rabbit. Good with other pets.', seller:'Mutale F.', rating:4.8, new:false, sold:false },
+];
+
+let currentFilter = 'All';
+let currentPet = { name:'Mochi', emoji:'🐱', type:'Persian Cat', age:'3y', weight:4.2 };
+
+// ── NAV ──
+function gotoView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) n.classList.add('active');
+    });
+  }
+  if (id === 'marketplace') renderListings();
+}
+
+// ── PET SWITCH ──
+function switchPet(name, emoji, type, age, weight) {
+  currentPet = { name, emoji, type, age, weight };
+  document.getElementById('dash-petname').textContent = name;
+  document.getElementById('dash-avatar').textContent = emoji;
+  document.getElementById('dash-weight').textContent = weight;
+  document.getElementById('health-petname').textContent = name + ' · ' + type;
+  document.querySelectorAll('.pet-pill').forEach(p => p.classList.remove('active-pet'));
+  event.currentTarget.classList.add('active-pet');
+}
+
+// ── DATE / GREETING ──
+function initDate() {
+  const now = new Date();
+  const h = now.getHours();
+  const greet = h < 12 ? 'Good morning! 🌿' : h < 17 ? 'Good afternoon! ☀️' : 'Good evening! 🌙';
+  document.getElementById('greet').textContent = greet;
+  document.getElementById('today-date').textContent = now.toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+// ── WEIGHT CHART ──
+function buildWeightChart() {
+  const weights = [3.8, 3.9, 4.0, 4.1, 4.2, 4.2];
+  const months = ['Nov','Dec','Jan','Feb','Mar','Apr'];
+  const max = Math.max(...weights);
+  const bars = document.getElementById('dash-wbars');
+  const mons = document.getElementById('dash-wmonths');
+  bars.innerHTML = ''; mons.innerHTML = '';
+  weights.forEach((w, i) => {
+    const b = document.createElement('div');
+    b.className = 'w-bar' + (i === weights.length-1 ? ' cur' : '');
+    b.style.height = Math.round((w / max) * 75) + 'px';
+    b.title = w + ' kg';
+    bars.appendChild(b);
+    const m = document.createElement('div'); m.className = 'w-month'; m.textContent = months[i];
+    mons.appendChild(m);
+  });
+}
+
+// ── MED TOGGLE ──
+function toggleMed(el) {
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+  const badge = el.parentElement.querySelector('.badge');
+  if (badge) { badge.className = 'badge ' + (el.classList.contains('done') ? 'badge-sage' : 'badge-red'); badge.textContent = el.classList.contains('done') ? 'Done' : 'Pending'; }
+}
+
+// ── MARKETPLACE ──
+function renderListings() {
+  const q = (document.getElementById('market-search')?.value || '').toLowerCase();
+  const grid = document.getElementById('listing-grid');
+  const filtered = listings.filter(l => {
+    const matchFilter = currentFilter === 'All' || l.species === currentFilter;
+    const matchSearch = !q || l.name.toLowerCase().includes(q) || l.breed.toLowerCase().includes(q) || l.location.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+  grid.innerHTML = filtered.length ? filtered.map(l => `
+    <div class="listing-card" onclick="openListing(${l.id})">
+      <div class="listing-img" style="background:${l.color};">
+        ${l.emoji}
+        ${l.sold ? '<div class="listing-badge-sold">Sold</div>' : l.new ? '<div class="listing-badge-new">New</div>' : ''}
+      </div>
+      <div class="listing-body">
+        <div class="listing-name">${l.name}</div>
+        <div class="listing-breed">${l.breed} · ${l.age} · ${l.sex}</div>
+        <div class="listing-price">${l.price === 0 ? 'Free adoption' : 'ZMW ' + l.price.toLocaleString()}</div>
+        <div class="listing-meta">
+          <span class="badge badge-blue">📍 ${l.location}</span>
+          ${l.vaccinated ? '<span class="badge badge-sage">✅ Vaccinated</span>' : ''}
+        </div>
+        <div class="seller-profile">
+          <div class="seller-avatar">👤</div>
+          <div><div class="seller-name">${l.seller}</div><div class="seller-loc">${l.location}</div></div>
+          <div class="seller-rating">⭐ ${l.rating}</div>
+        </div>
+      </div>
+      <div class="listing-footer">
+        <button class="btn btn-primary" style="flex:1;justify-content:center;font-size:13px;" onclick="event.stopPropagation();openListing(${l.id})">View details</button>
+        <button class="btn btn-outline" style="font-size:13px;" onclick="event.stopPropagation();">💬</button>
+      </div>
+    </div>
+  `).join('') : '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted);">No listings found. Try a different search.</div>';
+}
+
+function filterListings() { renderListings(); }
+
+function setFilter(el, val) {
+  currentFilter = val;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderListings();
+}
+
+function openListing(id) {
+  const l = listings.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('listing-detail-content').innerHTML = `
+    <div class="listing-detail-img" style="background:${l.color};">${l.emoji}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+      <div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;">${l.name}</div>
+        <div style="color:var(--muted);font-size:13px;">${l.breed} · ${l.location}</div>
+      </div>
+      <div style="font-family:'Fraunces',serif;font-size:24px;color:var(--sage-dark);">${l.price === 0 ? 'Free' : 'ZMW ' + l.price.toLocaleString()}</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-cell"><div class="info-cell-label">Age</div><div class="info-cell-val">${l.age}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Sex</div><div class="info-cell-val">${l.sex}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Species</div><div class="info-cell-val">${l.species}</div></div>
+      <div class="info-cell"><div class="info-cell-label">Vaccinated</div><div class="info-cell-val">${l.vaccinated ? '✅ Yes' : '❌ No'}</div></div>
+    </div>
+    <p style="font-size:13.5px;line-height:1.7;color:var(--muted);margin-bottom:1rem;">${l.desc}</p>
+    <div class="seller-profile" style="margin-bottom:1.25rem;">
+      <div class="seller-avatar" style="width:40px;height:40px;font-size:18px;">👤</div>
+      <div><div class="seller-name">${l.seller}</div><div class="seller-loc">📍 ${l.location} · ⭐ ${l.rating} rating</div></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" ${l.sold?'disabled':''} onclick="closeModal('modal-listing')">${l.sold ? 'Already sold' : '📞 Contact seller'}</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-listing')">Close</button>
+    </div>
+  `;
+  openModal('modal-listing');
+}
+
+// ── SELL STEPS ──
+function sellStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('sell-step-' + i).style.display = i === n ? 'block' : 'none';
+    document.getElementById('step' + i).classList.toggle('done', i <= n);
+  });
+}
+
+function togglePrice() {
+  const t = document.getElementById('listing-type').value;
+  document.getElementById('price-field').style.display = t === 'Adoption (free)' ? 'none' : '';
+}
+
+function submitListing() {
+  gotoView('mylistings', null);
+  const toast = document.getElementById('toast');
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 3000);
+  sellStep(1);
+}
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+
+// ── INIT ──
+initDate();
+buildWeightChart();
+renderListings();
+</script>
+</body>
+</html>
